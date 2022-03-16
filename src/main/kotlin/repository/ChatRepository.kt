@@ -24,14 +24,13 @@ class ChatRepository {
         chatList.clear()
     }
 
-    fun getMessagesByChatId(chatId: Int): MutableList<Message>? {
-        return if (chatList[chatId]?.isEmpty() == true) throw ChatNotFoundException("Chat not found")
-        else {
-            chatList[chatId]?.forEach { message -> message.wasRead = true }
-            chatList[chatId]
-        }
 
+    fun getMessagesByChatId(chatId: Int): MutableList<Message>? {
+        chatList[chatId] ?: throw ChatNotFoundException("Chat not found")
+        chatList[chatId]?.forEach { message -> message.wasRead = true }
+        return chatList[chatId]
     }
+
 
     fun deleteMessage(chatId: Int, messageId: Int) {
         try {
@@ -43,13 +42,21 @@ class ChatRepository {
     }
 
     fun deleteAllMessagesByChatId(chatId: Int) {
-        if (chatList[chatId].isNullOrEmpty()) throw ChatNotFoundException("Chat not found")
-        chatList[chatId]?.clear()
+        chatList[chatId].apply {
+            if (isNullOrEmpty()) throw ChatNotFoundException("Chat not found")
+            else {
+                chatList[chatId]?.clear()
+            }
+        }
     }
 
     fun addMessagesByChatId(chatId: Int, message: Message) {
-        if (chatList[chatId]?.isEmpty() == true) throw ChatNotFoundException("Chat not found")
-        chatList[chatId]?.add(message)
+        chatList[chatId].apply {
+            if (isNullOrEmpty()) throw ChatNotFoundException("Chat not found")
+            else {
+                chatList[chatId]?.add(message)
+            }
+        }
     }
 
     fun editMessageBy(chatId: Int, messageId: Int, message: Message) {

@@ -18,21 +18,19 @@ object ChatService {
         return count
     }
 
+
     fun clearAllChats() {
         chatRepository.clearAllChats()
     }
 
+
     fun getChats(): MutableList<MutableList<Message>> {
         val newList = mutableListOf<MutableList<Message>>()
-        chatRepository.getChatList()?.forEach { s ->
-            if (!s.value.isEmpty()) {
-                newList.add(s.value)
-            }
-        }
-        return if (newList.isEmpty()) {
-            throw MessageNotFoundException("No messages")
-        } else newList
+        chatRepository.getChatList()?.filter { s -> s.value.isNotEmpty() }?.forEach { s -> newList.add(s.value) }
+        newList.ifEmpty { throw MessageNotFoundException("No messages") }
+        return newList
     }
+
 
     fun getMessages(chatId: Int, messageId: Int, messagesCount: Int): List<Message>? {
         var messageList = chatRepository.getMessagesByChatId(chatId)
@@ -45,7 +43,7 @@ object ChatService {
     }
 
     fun deleteMessage(chatId: Int, messageId: Int) {
-        if(chatRepository.getMessagesByChatId(chatId).isNullOrEmpty()){
+        if (chatRepository.getMessagesByChatId(chatId).isNullOrEmpty()) {
             throw ChatNotFoundException("Chat not found")
         }
         if (messageId == chatRepository.getMessagesByChatId(chatId)?.lastIndex) {
@@ -66,15 +64,15 @@ object ChatService {
         chatRepository.deleteAllMessagesByChatId(chatId)
     }
 
-    fun addMessagesByChatId(chatId: Int, message: Message){
+    fun addMessagesByChatId(chatId: Int, message: Message) {
         chatRepository.addMessagesByChatId(chatId, message)
     }
 
-    fun getMessagesByChatId(chatId: Int): MutableList<Message>?{
+    fun getMessagesByChatId(chatId: Int): MutableList<Message>? {
         return chatRepository.getMessagesByChatId(chatId)
     }
 
-    fun editMessageBy(chatId: Int, messageId: Int, message: Message){
+    fun editMessageBy(chatId: Int, messageId: Int, message: Message) {
         chatRepository.editMessageBy(chatId, messageId, message)
     }
 }
